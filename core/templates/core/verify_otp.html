@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify OTP - TrendyCart</title>
+  <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+  <style>
+    body {
+      background: linear-gradient(to right, #fce4ec, #fff);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .otp-box {
+      max-width: 420px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      animation: fadeInSlide 0.6s ease;
+    }
+
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #d81b60;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    form input:focus {
+      border-color: #e91e63;
+      outline: none;
+    }
+
+    .btn {
+      background: #d81b60;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #ad1457;
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 10px;
+      color: #555;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="otp-box">
+  <h2>🔐 OTP Verification</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="text" name="otp" placeholder="Enter OTP" required>
+    <button type="submit" class="btn">Verify</button>
+  </form>
+
+  <div class="note">
+    Please check your SMS for the OTP. (Simulated OTP: {{ otp }})
+  </div>
+</div>
+
+</body>
+</html>

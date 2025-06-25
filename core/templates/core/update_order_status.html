@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Order Status | TrendyCart Partner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #2196f3, #6dd5fa);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h2 {
+      color: #007bff;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    select.form-select {
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .btn-submit {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      font-weight: 500;
+      border-radius: 10px;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+
+    .badge-status {
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: #fff;
+    }
+
+    .badge.Placed { background-color: #3498db; }
+    .badge["Out for Delivery"] { background-color: #f39c12; }
+    .badge.Delivered { background-color: #2ecc71; }
+    .badge.Failed, .badge.Cancelled { background-color: #e74c3c; }
+    .badge.Pending { background-color: #7f8c8d; }
+
+  </style>
+</head>
+<body>
+
+  <div class="status-box">
+    <h2>Update Order #{{ order.id }} Status</h2>
+
+    <p><strong>Customer:</strong> {{ order.user.name }}<br>
+    <strong>Current Status:</strong>
+      <span class="badge badge-status {{ order.status }}">{{ order.status }}</span>
+    </p>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="status" class="form-label">Select New Status</label>
+        <select name="status" id="status" class="form-select">
+          {% for key, value in status_choices %}
+            <option value="{{ key }}" {% if key == order.status %}selected{% endif %}>{{ value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-submit">Update Status</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

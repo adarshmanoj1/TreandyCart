@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Placed - TrendyCart</title>
+  <link rel="stylesheet" href="/static/core/css/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .confirmation-box {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    .confirmation-box h2 {
+      color: #00c853;
+      font-size: 2rem;
+      margin-bottom: 15px;
+    }
+
+    .confirmation-box p {
+      color: #555;
+      font-size: 1rem;
+      margin: 10px 0;
+    }
+
+    .confirmation-box .btn {
+      margin-top: 25px;
+      display: inline-block;
+      background: #00bfa5;
+      color: white;
+      padding: 12px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    .confirmation-box .btn:hover {
+      background: #009e88;
+    }
+  </style>
+</head>
+<body>
+  <div class="confirmation-box">
+    <h2>✅ Order Placed Successfully!</h2>
+    <p>Thank you for shopping with TrendyCart.</p>
+    <p>Your items will be delivered to your address soon.</p>
+    <p><strong>Order ID:</strong> #TC{{ request.user.id }}{{ request.user.last_login|date:"His" }}</p>
+
+    <a href="/" class="btn">Return to Home</a>
+  </div>
+</body>
+</html>

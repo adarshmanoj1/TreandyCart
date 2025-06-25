@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>User Profile - TrendyCart</title>
+  <link rel="stylesheet" href="/static/core/css/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fff);
+      padding: 50px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .info-block {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f8e9;
+      border: 1px solid #c5e1a5;
+      border-radius: 8px;
+    }
+
+    .info-block strong {
+      color: #33691e;
+    }
+
+    .form-container {
+      margin-top: 25px;
+    }
+
+    .btn {
+      background: #00bcd4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #0097a7;
+    }
+
+    .copy-btn {
+      background: #4caf50;
+      padding: 4px 10px;
+      margin-left: 10px;
+      font-size: 0.85rem;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .referral-users {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e3f2fd;
+      border-radius: 6px;
+    }
+
+    .referral-users ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .referral-users li {
+      padding: 4px 0;
+      border-bottom: 1px dashed #ccc;
+    }
+  </style>
+
+  <script>
+    function copyReferralCode() {
+      const code = document.getElementById("referralCode").innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("Referral code copied!");
+      });
+    }
+  </script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Welcome, {{ user.name }}</h2>
+
+  <div class="info-block">
+    <p><strong>Wallet Balance:</strong> ₹{{ user.wallet_balance }}</p>
+    <p>
+      <strong>Your Referral Code:</strong>
+      <span id="referralCode">{{ user.referral_code }}</span>
+      <button class="copy-btn" onclick="copyReferralCode()">Copy</button>
+    </p>
+  </div>
+
+  {% if referred_users %}
+  <div class="referral-users">
+    <strong>Users you referred:</strong>
+    <ul>
+      {% for u in referred_users %}
+        <li>{{ u.phone }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="form-container">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
+

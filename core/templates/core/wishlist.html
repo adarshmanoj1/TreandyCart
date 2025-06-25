@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wishlist - TrendyCart</title>
+  <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'core/css/font-awesome.min.css' %}">
+  <style>
+    body {
+      background: #f5f8fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+      background: #222;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .navbar a:hover {
+      color: #00e676;
+    }
+
+    .section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      color: #0077c2;
+    }
+
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      width: 260px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+      text-align: left;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .product-title {
+      font-weight: bold;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    .product-desc {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .rating {
+      font-size: 0.9rem;
+      color: #ffa500;
+      margin-top: 5px;
+    }
+
+    .product-price {
+      color: #00c853;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .product-price del {
+      color: #888;
+      margin-right: 8px;
+    }
+
+    .actions {
+      margin-top: 10px;
+    }
+
+    .actions form {
+      display: inline-block;
+    }
+
+    .actions button {
+      padding: 6px 12px;
+      margin: 5px 3px 0 0;
+      border: none;
+      border-radius: 6px;
+      background: #eeeeee;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+
+    .actions button:hover {
+      background: #cccccc;
+    }
+
+    .empty-message {
+      margin-top: 50px;
+      color: #888;
+      font-size: 1.2rem;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background: #222;
+      color: #ccc;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <div><strong>🛒 TrendyCart</strong></div>
+  <div>
+    <a href="/">Home</a>
+    <a href="/products/">Products</a>
+    <a href="/cart/">🛍 Cart</a>
+    <a href="/orders/">📦 Orders</a>
+    {% if user.is_authenticated %}
+      <a href="/logout/">Logout</a>
+    {% else %}
+      <a href="/login/">Login</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="section">
+  <h2>❤️ Your Wishlist</h2>
+
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        <div class="product-card">
+          <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit;">
+            <img src="{{ product.image.url }}" alt="{{ product.title }}">
+            <div class="product-title">{{ product.title }}</div>
+            <div class="product-desc">{{ product.description|truncatewords:12 }}</div>
+            <div class="rating">⭐ {{ product.rating|default:4 }}/5</div>
+            <div class="product-price">
+              {% if product.original_price > product.discount_price %}
+                <del>₹{{ product.original_price }}</del>
+              {% endif %}
+              ₹{{ product.discount_price }}
+            </div>
+          </a>
+          <div class="actions">
+            <!-- Add to Cart -->
+            <form method="post" action="{% url 'add_to_cart' product.id %}">
+              {% csrf_token %}
+              <button type="submit" title="Add to cart">🛒</button>
+            </form>
+            <!-- Remove from Wishlist -->
+            <form method="post" action="{% url 'toggle_wishlist' product.id %}">
+              {% csrf_token %}
+              <button type="submit" title="Remove from wishlist">❌</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-message">
+      No items in your wishlist yet.
+    </div>
+  {% endif %}
+</div>
+
+<div class="footer">
+  &copy; 2025 TrendyCart. All rights reserved.
+</div>
+
+</body>
+</html>

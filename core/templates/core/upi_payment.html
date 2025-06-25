@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UPI Payment | TrendyCart</title>
+  <link rel="stylesheet" href="{% static 'core/css/bootstrap.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: #f6f9fc;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .payment-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+    }
+
+    .upi-logo {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    .upi-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    .upi-option {
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f1f1f1;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .upi-option:hover {
+      background: #e0f7fa;
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .upi-option.selected {
+      background-color: #d1f7e6;
+      border: 2px solid #28a745;
+      box-shadow: 0 0 8px rgba(0, 128, 0, 0.2);
+    }
+
+    .upi-option img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .upi-option span {
+      display: block;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .btn-pay {
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .form-group label {
+      font-weight: 500;
+    }
+
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .loading-text {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #444;
+    }
+
+    /* QR Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .modal-content img {
+      width: 200px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+
+<div id="loadingOverlay">
+  <div class="spinner-border text-success" role="status"></div>
+  <div class="loading-text">Processing UPI Payment...</div>
+</div>
+
+<div id="qrModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeQRModal()">&times;</span>
+    <h5>Scan UPI QR</h5>
+    <img src="{% static 'core/images/qr.png' %}" alt="Scan QR">
+    <p class="text-muted mt-2">Scan Me</p>
+  </div>
+</div>
+
+<div class="payment-card">
+  <div class="text-center">
+    <img src="{% static 'core/images/upilogo.png' %}" alt="UPI Logo" class="upi-logo" />
+    <h4>Select a UPI App</h4>
+    <p class="text-muted">Choose your preferred UPI provider</p>
+  </div>
+
+  <div class="upi-options" id="upiOptions">
+    <div class="upi-option" data-app="PhonePe" data-domain="@ybl"><img src="{% static 'core/images/phonepe.jpg' %}"><span>PhonePe</span></div>
+    <div class="upi-option" data-app="GPay" data-domain="@okaxis"><img src="{% static 'core/images/gpay.jpg' %}"><span>GPay</span></div>
+    <div class="upi-option" data-app="Paytm" data-domain="@paytm"><img src="{% static 'core/images/paytm.jpg' %}"><span>Paytm</span></div>
+    <div class="upi-option" data-app="BHIM" data-domain="@upi"><img src="{% static 'core/images/bhim.jpg' %}"><span>BHIM</span></div>
+    <div class="upi-option" data-app="Razorpay" data-domain="@razorpay"><img src="{% static 'core/images/razorpay.jpg' %}"><span>Razorpay</span></div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST" onsubmit="return submitWithLoader(this)">
+    {% csrf_token %}
+    <input type="hidden" name="upi_app" id="selectedUpiApp">
+    <div class="form-group mb-3">
+      <label for="upi_id">Enter your UPI ID</label>
+      <input type="text" class="form-control" name="upi_id" id="upiInput" placeholder="you@upi" required>
+    </div>
+
+    <div class="form-group mb-3">
+      <label>Simulate Payment Result</label>
+      <select class="form-control" name="simulate_result">
+        <option value="success">✅ Simulate Success</option>
+        <option value="failure">❌ Simulate Failure</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-pay mt-3" id="payNowBtn">
+      <i class="fas fa-bolt"></i> Pay Now
+    </button>
+  </form>
+</div>
+
+<script>
+  // UPI selection logic + autofill
+  document.addEventListener("DOMContentLoaded", function () {
+    const options = document.querySelectorAll(".upi-option");
+    const upiInput = document.getElementById("upiInput");
+    const appInput = document.getElementById("selectedUpiApp");
+
+    options.forEach(option => {
+      option.addEventListener("click", () => {
+        options.forEach(o => o.classList.remove("selected"));
+        option.classList.add("selected");
+
+        const app = option.dataset.app;
+        const domain = option.dataset.domain;
+
+        appInput.value = app;
+
+        if (!upiInput.value.includes("@")) {
+          upiInput.value = "yourname" + domain;
+        }
+
+        showQRModal();
+      });
+    });
+  });
+
+  function submitWithLoader(form) {
+    const payBtn = document.getElementById("payNowBtn");
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    document.getElementById("loadingOverlay").style.display = "flex";
+    return true;
+  }
+
+  // QR Modal Logic
+  function showQRModal() {
+    document.getElementById("qrModal").style.display = "block";
+  }
+
+  function closeQRModal() {
+    document.getElementById("qrModal").style.display = "none";
+  }
+</script>
+
+</body>
+</html>

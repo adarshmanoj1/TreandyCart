@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.title }} - TrendyCart</title>
+  <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f1f4f8, #e3f2fd);
+      color: #333;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .product-main {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .product-main img {
+      width: 400px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .product-main img:hover {
+      transform: scale(1.03);
+    }
+
+    .product-info h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .product-info .brand {
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .product-info .price {
+      font-size: 1.6rem;
+      color: #e91e63;
+    }
+
+    .product-info .old-price {
+      text-decoration: line-through;
+      color: #999;
+      font-size: 1rem;
+      margin-left: 8px;
+    }
+
+    .product-info .desc {
+      margin: 20px 0;
+      color: #555;
+    }
+
+    .product-info .actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .product-info .actions a {
+      background: #007bff;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .product-info .actions a:hover {
+      background: #0056b3;
+    }
+
+     .reviews {
+    margin-top: 40px;
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 10px;
+  }
+  .review-card {
+    background: white;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .review-meta {
+    font-size: 0.8rem;
+    color: #888;
+  }
+  .review-controls a {
+    font-size: 0.9rem;
+    margin-right: 10px;
+    color: #007bff;
+    text-decoration: none;
+  }
+  .review-controls a:hover {
+    text-decoration: underline;
+  }
+  .review-stars {
+    font-size: 1.2rem;
+    margin: 4px 0;
+    color: #ffa000;
+  }
+
+    form textarea, form select {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    form button {
+      background: #4caf50;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background: #388e3c;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="product-main">
+    <img src="{{ product.image.url }}" alt="{{ product.title }}">
+    <div class="product-info">
+      <h2>{{ product.title }}</h2>
+      <div class="brand"><strong>Brand:</strong> {{ product.brand }}</div>
+      <div class="price">
+        ₹{{ product.discount_price }}
+        <span class="old-price">₹{{ product.original_price }}</span>
+      </div>
+      <p class="desc"><strong>Description:</strong> {{ product.description }}</p>
+      <p><strong>Rating:</strong> ⭐ {{ product.rating|default:"N/A" }}/5</p>
+
+      <div class="actions">
+        <a href="{% url 'add_to_cart' product.id %}">🛒 Add to Cart</a>
+        <a href="{% url 'toggle_wishlist' product.id %}">❤️ Wishlist</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⭐ Review Section -->
+  <div class="reviews">
+    <h3>Customer Reviews</h3>
+
+    {% if avg_rating %}
+      <p><strong>Average Rating:</strong>
+        {% for i in "12345"|make_list %}
+  {% if forloop.counter <= avg_rating|floatformat:0 %}⭐{% else %}☆{% endif %}
+{% endfor %}
+
+        ({{ avg_rating|floatformat:1 }}/5)
+      </p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      {% if not user_review %}
+        <h4>Write a Review</h4>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Submit Review</button>
+        </form>
+      {% else %}
+        <p><em>You already reviewed this product.</em></p>
+      {% endif %}
+    {% else %}
+      <p><a href="/login/">Login</a> to write a review.</p>
+    {% endif %}
+
+    {% for review in reviews %}
+      <div class="review-card">
+        <div><strong>{{ review.user.name }}</strong></div>
+        <div class="review-stars">
+          {% for i in "12345"|make_list %}
+  {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+{% endfor %}
+
+        </div>
+        <p>{{ review.comment }}</p>
+        <div class="review-meta">{{ review.created_at|date:"M d, Y H:i" }}</div>
+        {% if user.is_authenticated and review.user == user %}
+          <div class="review-controls">
+            <a href="{% url 'edit_review' review.id %}">✏️ Edit</a>
+            <a href="{% url 'delete_review' review.id %}">🗑️ Delete</a>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>No reviews yet. Be the first to review!</p>
+    {% endfor %}
+  </div>
+</div>
+</body>
+</html>

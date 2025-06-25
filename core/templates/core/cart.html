@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Cart - TrendyCart</title>
+  <link rel="stylesheet" href="/static/core/css/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f4f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cart-wrapper {
+      max-width: 1200px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+      overflow: hidden;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cart-header {
+      background: linear-gradient(to right, #ff6e7f, #bfe9ff);
+      color: #333;
+      padding: 20px 30px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .cart-header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .cart-items {
+      padding: 20px 30px;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #eee;
+      transition: background 0.3s ease;
+    }
+
+    .cart-item:hover {
+      background: #fdfdfd;
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .cart-info {
+      flex: 1;
+      padding: 0 20px;
+    }
+
+    .cart-info h4 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .cart-info p {
+      margin: 8px 0;
+      color: #666;
+    }
+
+    .qty-controls form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .qty-btn {
+      background: #f0f0f0;
+      border: none;
+      font-size: 1rem;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .qty-btn:hover {
+      background: #ddd;
+    }
+
+    .remove-btn {
+      background: #ff4d4f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .remove-btn:hover {
+      background: #d9363e;
+    }
+
+    .cart-summary {
+      padding: 20px 30px;
+      background: #fafafa;
+      text-align: right;
+      border-top: 1px solid #ddd;
+    }
+
+    .cart-summary h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .checkout-btn {
+      background: #00c853;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 10px;
+      display: inline-block;
+      transition: background 0.3s ease;
+    }
+
+    .checkout-btn:hover {
+      background: #00a843;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 0;
+      font-size: 1.3rem;
+      color: #999;
+    }
+
+    .empty-cart a {
+      margin-top: 15px;
+      display: inline-block;
+      background: #2196f3;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .empty-cart a:hover {
+      background: #1976d2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="cart-wrapper">
+  <div class="cart-header">
+    <h2>🛒 Your Shopping Cart</h2>
+  </div>
+
+  {% if cart_items %}
+  <div class="cart-items">
+    {% for item in cart_items %}
+    <div class="cart-item">
+      <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+      <div class="cart-info">
+        <h4>{{ item.product.title }}</h4>
+        <p>Price: ₹{{ item.product.discount_price }}</p>
+        <p>Subtotal: ₹{{ item.total_price }}</p>
+        <div class="qty-controls">
+          <form method="post" action="{% url 'update_cart' item.id %}">
+            {% csrf_token %}
+            <button name="action" value="decrease" class="qty-btn">−</button>
+            <span>{{ item.quantity }}</span>
+            <button name="action" value="increase" class="qty-btn">+</button>
+          </form>
+        </div>
+      </div>
+      <a href="{% url 'remove_from_cart' item.id %}" class="remove-btn">Remove</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="cart-summary">
+    <h3>Total: ₹{{ total }}</h3>
+    <a href="/checkout/" class="checkout-btn">🧾 Proceed to Checkout</a>
+  </div>
+  {% else %}
+    <div class="empty-cart">
+      🧺 Your cart is empty.<br><br>
+      <a href="/products/">Continue Shopping</a>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>
